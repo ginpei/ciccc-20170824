@@ -15,6 +15,9 @@ readFilesAt('./io/S2')
 	})
 	.catch(error => console.error(error))
 
+/**
+ * Main part!
+ */
 function doTask(input) {
 	const { codecPairs, encoded } = parse(input)
 	const length = encoded.length
