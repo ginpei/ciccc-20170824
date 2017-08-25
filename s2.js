@@ -5,6 +5,12 @@ readFilesAt('./io/S2')
 		dataList.forEach(data => {
 			const decoded = doTask(data.input)
 			console.log(data.inputPath, decoded);
+
+			if (decoded !== data.expected) {
+				console.error('-- ERROR: it should be following')
+				console.error(data.expected)
+				console.error('')
+			}
 		})
 	})
 	.catch(error => console.error(error))
