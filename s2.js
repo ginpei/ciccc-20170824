@@ -3,8 +3,8 @@ const { readFilesAt } = require('./util.js')
 readFilesAt('./io/S2')
 	.then(dataList => {
 		dataList.forEach(data => {
-			const decodec = doTask(data.input)
-			console.log(data.inputPath, decodec);
+			const decoded = doTask(data.input)
+			console.log(data.inputPath, decoded);
 		})
 	})
 	.catch(error => console.error(error))
