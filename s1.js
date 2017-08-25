@@ -1,83 +1,30 @@
-const fs = require('fs')
+const { readFilesAt } = require('./util.js')
 
-const dir = './io/S1'
+readFilesAt('./io/S1')
+	.then(dataList => {
+		dataList.forEach(data => {
+			const names = doTask(data.input)
+			console.log(data.inputPath, names)
 
-fs.readdir(dir, 'utf8', (err, files) => {
-	if (err) {
-		console.error('Directory not found.')
-		return
-	}
-
-	const tasks = files
-		.filter(v => /\.in$/.test(v))
-		.map(v => doTask(`${dir}/${v}`))
-
-	Promise.all(tasks)
-		.then(results => {
-			results.forEach((result, index) => {
-				console.log(result.inputFileName, '--------------------------------')
-				console.log('-- expected')
-				console.log(result.expected)
-				console.log('-- output')
-				console.log(result.output)
-				if (result.success) {
-					console.log('--- OK ---')
-				}
-				else {
-					console.log('--- ERROR', '================================')
-				}
-				console.log('')
-			})
+			if (names.join('\n') !== data.expected) {
+				console.error('-- ERROR: it should be following')
+				console.error(data.expected)
+				console.error('')
+			}
 		})
-		.catch(error => {
-			console.error('ERROR', error)
-		})
-})
+	})
+	.catch(error => console.error(error))
 
 /**
  * Main part!
  */
-function doTask(inputFileName) {
-	const outputFileName = inputFileName.replace(/\.in$/, '.out')
-
-	return readTextFile(inputFileName)
-		.then(text => parseInput(text))
-		.then(dataList => {
-			// dataList.forEach(v => console.log(calculatePreference(v), v))
-			const topNames = dataList
-				.sort((a, b) => calculatePreference(b) - calculatePreference(a))
-				.slice(0, 2)
-				.map(v => v.name)
-			// console.log(topNames)
-			return topNames.join('\n')
-		})
-		.then(output => {
-			return readTextFile(outputFileName)
-				.then(expected => ({expected, output}))
-		})
-		.then(({ expected, output }) => {
-			return {
-				expected: expected.trim().replace(/\r\n/, '\n'),
-				output: output.trim().replace(/\r\n/, '\n'),
-			}
-		})
-		.then(({ expected, output }) => {
-			const success = expected === output
-			return { expected, inputFileName, output, success }
-		})
-}
-
-function readTextFile(path) {
-	return new Promise((resolve, reject) => {
-		fs.readFile(path, 'utf8', (err, data) => {
-			if (err) {
-				reject(err)
-			}
-			else {
-				resolve(data)
-			}
-		})
-	})
+function doTask(input) {
+	const dataList = parseInput(input)
+	const topNames = dataList
+		.sort((a, b) => calculatePreference(b) - calculatePreference(a))
+		.slice(0, 2)
+		.map(v => v.name)
+	return topNames
 }
 
 /**
@@ -95,7 +42,7 @@ function readTextFile(path) {
  * console.assert(output[0].disk === 3)
  */
 function parseInput(input) {
-	const lines = input.split('\r\n')
+	const lines = input.split('\n')
 	const data = lines
 		.slice(1)
 		.filter(v => v)
