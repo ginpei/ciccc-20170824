@@ -1,19 +1,37 @@
-const { readFilesAt } = require('./util.js')
+const { readStdin, readFilesAt } = require('./util.js')
 
-readFilesAt('./io/S1')
-	.then(dataList => {
-		dataList.forEach(data => {
-			const names = doTask(data.input)
-			console.log(data.inputPath, names)
+const args = process.argv.slice(2)
+if (args[0] === '--test') {
+	test()
+}
+else {
+	read()
+}
 
-			if (names.join('\n') !== data.expected) {
-				console.error('-- ERROR: it should be following')
-				console.error(data.expected)
-				console.error('')
-			}
+function read() {
+	readStdin()
+		.then(input => {
+			const output = doTask(input)
+			console.log(output)
 		})
-	})
-	.catch(error => console.error(error))
+}
+
+function test() {
+	readFilesAt('./io/S1')
+		.then(dataList => {
+			dataList.forEach(data => {
+				const output = doTask(data.input)
+				console.log(data.inputPath, output.replace('\n', ', '))
+
+				if (output !== data.expected) {
+					console.error('-- ERROR: it should be following')
+					console.error(data.expected)
+					console.error('')
+				}
+			})
+		})
+		.catch(error => console.error(error))
+}
 
 /**
  * Main part!
@@ -24,7 +42,7 @@ function doTask(input) {
 		.sort((a, b) => calculatePreference(b) - calculatePreference(a))
 		.slice(0, 2)
 		.map(v => v.name)
-	return topNames
+	return topNames.join('\n')
 }
 
 /**

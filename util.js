@@ -50,7 +50,27 @@ function outputFileNameFromInputFileName(inputFileName) {
 	return inputFileName.replace(/\.in$/, '.out')
 }
 
+function readStdin() {
+	return new Promise((resolve, reject) => {
+		process.stdin.setEncoding('utf8')
+
+		let input = ''
+		process.stdin.on('readable', () => {
+			const chunk = process.stdin.read()
+			if (chunk !== null) {
+				input += chunk
+			}
+		})
+
+		process.stdin.on('end', () => {
+			const text = input.replace(/\r\n/g, '\n').trim()
+			resolve(text)
+		})
+	})
+}
+
 module.exports = {
 	readTextFile,
 	readFilesAt,
+	readStdin,
 }

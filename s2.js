@@ -1,19 +1,37 @@
-const { readFilesAt } = require('./util.js')
+const { readStdin, readFilesAt } = require('./util.js')
 
-readFilesAt('./io/S2')
-	.then(dataList => {
-		dataList.forEach(data => {
-			const decoded = doTask(data.input)
-			console.log(data.inputPath, decoded);
+const args = process.argv.slice(2)
+if (args[0] === '--test') {
+	test()
+}
+else {
+	read()
+}
 
-			if (decoded !== data.expected) {
-				console.error('-- ERROR: it should be following')
-				console.error(data.expected)
-				console.error('')
-			}
+function read() {
+	readStdin()
+		.then(input => {
+			const output = doTask(input)
+			console.log(output)
 		})
-	})
-	.catch(error => console.error(error))
+}
+
+function test() {
+	readFilesAt('./io/S2')
+		.then(dataList => {
+			dataList.forEach(data => {
+				const decoded = doTask(data.input)
+				console.log(data.inputPath, decoded);
+
+				if (decoded !== data.expected) {
+					console.error('-- ERROR: it should be following')
+					console.error(data.expected)
+					console.error('')
+				}
+			})
+		})
+		.catch(error => console.error(error))
+}
 
 /**
  * Main part!
